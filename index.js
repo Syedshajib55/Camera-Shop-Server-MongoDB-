@@ -6,7 +6,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 //const port = process.env.PORT || 5000;
 
 // middleware
@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.19uqr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-
+//console.log(uri);
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 
@@ -27,6 +27,8 @@ async function run(){
     const ordersCollection = database.collection('orders');
     const usersCollection = database.collection('users');
 
+    console.log('All routes should');
+    
     // GET API
       app.get('/services', async (req, res) => {
         const cursor = servicesCollection.find({});
