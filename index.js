@@ -27,8 +27,8 @@ async function run(){
     const ordersCollection = database.collection('orders');
     const usersCollection = database.collection('users');
 
-    console.log('All routes should');
     
+
     // GET API
       app.get('/services', async (req, res) => {
         const cursor = servicesCollection.find({});
