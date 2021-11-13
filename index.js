@@ -1,9 +1,17 @@
 const express = require('express');
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
-
+const admin = require("firebase-admin");
 const cors = require('cors');
 require('dotenv').config();
+
+// camerashop-adminsdk.json
+
+const serviceAccount = require('./camerashop-adminsdk.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -17,6 +25,21 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 //console.log(uri);
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
+async function verifyToken(req, res, next) {
+  if (req.headers?.authorization?.startsWith('Bearer ')) {
+      const token = req.headers.authorization.split(' ')[1];
+
+      try {
+          const decodedUser = await admin.auth().verifyIdToken(token);
+          req.decodedEmail = decodedUser.email;
+      }
+      catch {
+
+      }
+
+  }
+  next();
+}
 
 async function run(){
   try{
@@ -26,8 +49,6 @@ async function run(){
     const reviewsCollection = database.collection('reviews');
     const ordersCollection = database.collection('orders');
     const usersCollection = database.collection('users');
-
-    
 
     // GET API
       app.get('/services', async (req, res) => {
@@ -65,24 +86,64 @@ async function run(){
       console.log(result);
       res.json(result)
   });
-    //post API
+    //post API users
     app.post('/users', async (req, res) => {
       const user  = req.body;
-      console.log('hit the post api', service);
-
+      console.log('hit the post api', user);
       const result = await usersCollection.insertOne(user);
       console.log(result);
       res.json(result)
   });
-    //post API
+  app.get('/users', async (req, res) => {
+      const cursor = usersCollection.find({});
+      const users = await cursor.toArray();
+      res.send(users);
+  });
+    //post API reviews
     app.post('/reviews', async (req, res) => {
       const reviews  = req.body;
       console.log('hit the post api', reviews);
-
       const result = await reviewsCollection.insertOne(reviews);
       console.log(result);
       res.json(result)
   });
+    //PUT users
+    app.put('/users', async (req, res) => {
+      const user = req.body;
+      const filter = { email: user.email };
+      const options = { upsert: true };
+      const updateDoc = { $set: user };
+      const result = await usersCollection.updateOne(filter, updateDoc, options);
+      res.json(result);
+  });
+
+    app.put('/users/admin', verifyToken,  async (req, res) => {
+      const user = req.body;
+      const requester = req.decodedEmail;
+      if (requester) {
+          const requesterAccount = await usersCollection.findOne({ email: requester });
+          if (requesterAccount.role === 'admin') {
+              const filter = { email: user.email };
+              const updateDoc = { $set: { role: 'admin' } };
+              const result = await usersCollection.updateOne(filter, updateDoc);
+              res.json(result);
+          }
+      }
+      else {
+          res.status(403).json({ message: 'you do not have access to make admin' })
+      }
+
+  })
+  app.get('/users/:email', async (req, res) => {
+    const email = req.params.email;
+    const query = { email: email };
+    const user = await usersCollection.findOne(query);
+    let isAdmin = false;
+    if (user?.role === 'admin') {
+        isAdmin = true;
+    }
+    res.json({ admin: isAdmin });
+})
     // DELETE API
     app.delete('/services/:id', async (req, res) => {
       const id = req.params.id;
