@@ -67,7 +67,7 @@ async function run(){
       // GET Single Service
       app.get('/services/:id', async (req, res) => {
         const id = req.params.id;
-        console.log('getting specific service', id);
+        console.log('getting specific Service', id);
         const query = { _id: ObjectId(id) };
         const service = await servicesCollection.findOne(query);
         res.json(service);
