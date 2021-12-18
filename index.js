@@ -80,7 +80,7 @@ async function run(){
     //post API
     app.post('/services', async (req, res) => {
       const service  = req.body;
-      console.log('hit the post api', service);
+      console.log('Hit the Post API', service);
 
       const result = await servicesCollection.insertOne(service);
       console.log(result);
