@@ -6,9 +6,7 @@ Server Code Link: https://github.com/Syedshajib55/Camera-Shop-Server-MongoDB-
 ### Live Link: https://camerashop-dcc0b.web.app/
 
 ## Website Detail: 
-My website name is CameraShop. On this website, there are many DSLR cameras and their lens to sell. Any user can buy any camera by clicking Buy Now button 
-and the user will go to the purchase page to buy the product. Users have to login for purchase by email password or Google login system. Anormal user only can see his orders but an admin can
-see all orders of all users.
+My website's name is CameraShop. It offers a variety of DSLR cameras and lenses for sale. Users can purchase any camera by clicking the "Buy Now" button, which directs them to the purchase page. To complete a purchase, users need to log in using their email and password or through the Google login system. Normal users can only view their own orders, while administrators have access to all orders from all users.
 
 ### Application Features
 1. Users have to login with their Email and Password.
